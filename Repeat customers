@@ -1,0 +1,58 @@
+
+INPUT
+order_id	   order_date	    cust_id	order_amount
+1	            2022-09-01	   100	       450
+2	            2022-09-01	   200	       400
+3	            2022-09-01	   300	       500
+4	            2022-09-02	   100	       650
+5	            2022-09-02	   400	       345
+6	            2022-09-02	   500	       800
+7	            2022-09-03	   100	       1000
+8	            2022-09-03	   400	       450
+9	            2022-09-03	   600	       783
+
+
+EXPECTED OUTPUT
+
+date	      new_customer	repeat customer
+2022-09-01	     3	            0
+2022-09-01	     2	            1
+2022-09-01	     1	            2
+
+
+
+------------------------- ******* ------------------------
+CREATE TABLE customers
+    ([order_id] int, [order_date] datetime, [cust_id] int, [order_amount] int)
+;
+    
+INSERT INTO customers
+    ([order_id], [order_date], [cust_id], [order_amount])
+VALUES
+    (1, '2022-09-01 00:00:00', 100, 450),
+    (2, '2022-09-01 00:00:00', 200, 400),
+    (3, '2022-09-01 00:00:00', 300, 500),
+    (4, '2022-09-02 00:00:00', 100, 650),
+    (5, '2022-09-02 00:00:00', 400, 345),
+    (6, '2022-09-02 00:00:00', 500, 800),
+    (7, '2022-09-03 00:00:00', 100, 1000),
+    (8, '2022-09-03 00:00:00', 400, 450),
+    (9, '2022-09-03 00:00:00', 600, 783)
+;
+
+------------------------ ***** --------------------------
+select 
+order_date,
+sum(case when rn1 = 1 then 1 else 0 end) as new_customers,
+sum(case when rn1 > 1 then 1 else 0 end) as repeat_customers
+from 
+
+(select 
+order_date,
+cust_id,
+row_number() over(partition by cust_id) as rn1
+from customers
+order by order_date) as aa
+group by order_date
+;
+------------------------ ***** -----------------------------
