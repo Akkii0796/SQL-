@@ -1,0 +1,62 @@
+INPUT		                                      
+Team1	  Team2	  Winner                  
+India	  SL	    India
+SL	    Aus	    Aus
+SA	    Eng	    Eng
+Eng	    NZ	    NZ
+Aus	    India	  India
+
+
+OUTPUT			
+Team_Name    	No_of_Matches_played.      	No_of_wins	   No_of_losses
+India	                2	                      2	              0
+SL	                  2	                      0	              2
+SA	                  1	                      0	              1
+Aus	                  2	                      1	              1
+Eng	                  2	                      1	              1
+NZ	                  1	                      1	              0
+                                
+
+
+
+Query 1 
+-------------------  *** ------------------------
+
+select 
+team1,
+total_played,
+ISNULL(total_wins,0) as total_winss,
+(total_played - ISNULL(total_wins,0)) as total_losses
+from 
+
+
+(select 
+team1,
+sum(t1) as total_played
+from
+(select 
+team1,
+count(DISTINCT(team1)) as t1
+from cricket
+group by team1
+ 
+UNION ALL
+ 
+select 
+team2,
+count(DISTINCT(team2)) as t1
+from cricket
+group by team2) as aaa
+group by team1) as played
+left join 
+
+(
+select 
+winner,
+count( winner) as total_wins
+ from cricket
+  group by winner) as wins
+on played.team1 = wins.winner
+
+
+-------------------  *** ------------------------
